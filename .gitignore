@@ -1,0 +1,46 @@
+# dependencies
+node_modules/
+**/node_modules/
+
+# build outputs
+.next/
+**/.next/
+dist/
+**/dist/
+build/
+**/build/
+out/
+**/out/
+coverage/
+**/coverage/
+.turbo/
+.cache/
+tmp/
+temp/
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# env files / secrets
+.env
+.env.*
+!.env.example
+!.env.compose.example
+apps/web/.env.example
+apps/api/.env.example
+
+# test / reports
+.nyc_output/
+playwright-report/
+
+# os/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

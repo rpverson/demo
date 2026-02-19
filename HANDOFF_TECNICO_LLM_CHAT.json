@@ -1,0 +1,207 @@
+{
+  "meta": {
+    "title": "Handoff tecnico LLM/Chat",
+    "source_project": "vibe",
+    "generated_for": "Integracion en otro proyecto (React + Vite)",
+    "date": "2026-02-18",
+    "language": "es"
+  },
+  "contexto_minimo": {
+    "objetivo": "Plataforma de convocatorias ambientales con flujo FASE_1 (analisis y brechas) y FASE_2 (anteproyecto editable).",
+    "flujo_chat_llm": [
+      "Asistente contextual por tenant y por documento/convocatoria.",
+      "Analisis de convocatoria con IA (FASE_1).",
+      "Ranking inteligente de tareas de impacto.",
+      "Generacion de borrador de anteproyecto con IA."
+    ],
+    "frontend_router": "Next.js App Router",
+    "observacion": "El chat no usa rutas API internas de Next.js; usa backend NestJS externo."
+  },
+  "endpoints": [
+    {
+      "path": "/api/v1/ai/chat",
+      "method": "POST",
+      "purpose": "Responder preguntas del asistente contextual.",
+      "headers_required": ["x-tenant-id", "x-user-id"],
+      "request_json": {
+        "message": "string",
+        "callId": "string (optional)",
+        "documentId": "string (optional)"
+      },
+      "response_json": {
+        "answer": "string",
+        "traceId": "string",
+        "createdAt": "ISO date"
+      },
+      "streaming": {
+        "enabled": false,
+        "format": null
+      }
+    },
+    {
+      "path": "/api/v1/calls/:id/analyze-phase-1-llm",
+      "method": "POST",
+      "purpose": "Extraer requisitos de convocatoria con LLM y calcular brechas.",
+      "request_json": {},
+      "response_json_shape": {
+        "callId": "string",
+        "status": "GAP_PENDING | READY_FOR_PHASE_2",
+        "requirements": "CallRequirementsV1",
+        "gapReport": "GapReportDTO"
+      },
+      "streaming": {
+        "enabled": false,
+        "format": null
+      }
+    },
+    {
+      "path": "/api/v1/calls/:id/recommend-impact-tasks",
+      "method": "POST",
+      "purpose": "Ranking inteligente de tareas de impacto con LLM.",
+      "request_json": {},
+      "response_json_shape": {
+        "callId": "string",
+        "recommendation": "ImpactRecommendationV1"
+      },
+      "streaming": {
+        "enabled": false,
+        "format": null
+      }
+    },
+    {
+      "path": "/api/v1/calls/:id/generate-draft-llm",
+      "method": "POST",
+      "purpose": "Generar borrador del anteproyecto con LLM.",
+      "request_json": {},
+      "response_json_shape": {
+        "callId": "string",
+        "documentId": "string",
+        "status": "GENERATED_PHASE_2",
+        "draft": "DraftOutputV1"
+      },
+      "streaming": {
+        "enabled": false,
+        "format": null
+      }
+    },
+    {
+      "path": "/api/v1/llm/health",
+      "method": "GET",
+      "purpose": "Verificar modo OpenAI vs fallback.",
+      "response_json_shape": {
+        "ok": "boolean",
+        "mode": "openai | fallback",
+        "model": "string",
+        "reason": "string (optional)",
+        "responseSample": "string (optional)"
+      }
+    }
+  ],
+  "implementacion_openai": {
+    "wrapper_file": "/Users/admon/Desktop/vibe/apps/api/src/modules/llm/llm.service.ts",
+    "api_calls": [
+      {
+        "function": "callOpenAIJson",
+        "endpoint": "{OPENAI_BASE_URL}/chat/completions",
+        "temperature": 0.2,
+        "response_format": "json_object"
+      },
+      {
+        "function": "callOpenAIText",
+        "endpoint": "{OPENAI_BASE_URL}/chat/completions",
+        "temperature": 0.3,
+        "response_format": "text"
+      }
+    ],
+    "model_resolution": "process.env.LLM_MODEL || 'gpt-4.1-mini'",
+    "env_vars": ["OPENAI_API_KEY", "OPENAI_BASE_URL", "LLM_MODEL"],
+    "function_calling_tools": {
+      "enabled": false,
+      "details": null
+    },
+    "retrieval_embeddings": {
+      "enabled": false,
+      "details": null
+    },
+    "fallback_mode": "Si OPENAI_API_KEY falta o OpenAI falla, usa metodos mock internos."
+  },
+  "frontend_chat": {
+    "componentes_clave": [
+      "/Users/admon/Desktop/vibe/apps/web/src/components/ai-bubble.tsx",
+      "/Users/admon/Desktop/vibe/apps/web/src/lib/api.ts",
+      "/Users/admon/Desktop/vibe/apps/web/src/app/page.tsx"
+    ],
+    "estado_principal": ["open", "question", "answer"],
+    "fetch_contract": {
+      "client_method": "api.aiChat(message, { callId, documentId })",
+      "endpoint": "/ai/chat",
+      "payload": {
+        "message": "string",
+        "callId": "string (optional)",
+        "documentId": "string (optional)"
+      }
+    },
+    "streaming_ui": false
+  },
+  "seguridad_y_entorno": {
+    "backend_env": ["OPENAI_API_KEY", "OPENAI_BASE_URL", "LLM_MODEL", "PORT"],
+    "frontend_env": [
+      "NEXT_PUBLIC_API_URL",
+      "NEXT_PUBLIC_TENANT_ID",
+      "NEXT_PUBLIC_USER_ID",
+      "NEXT_PUBLIC_DEFAULT_DOCUMENT_ID"
+    ],
+    "protecciones": [
+      "Contexto obligatorio por headers x-tenant-id y x-user-id.",
+      "Validacion de pertenencia tenant para callId/documentId en chat.",
+      "CORS habilitado globalmente."
+    ],
+    "no_implementado_aun": ["JWT/session auth", "rate limiting dedicado"]
+  },
+  "dependencias_relevantes": {
+    "backend": [
+      "@nestjs/common",
+      "@nestjs/core",
+      "class-validator",
+      "@prisma/client"
+    ],
+    "frontend": [
+      "@tanstack/react-query"
+    ],
+    "observacion": "No se usa SDK oficial de OpenAI; se usa fetch nativo."
+  },
+  "fragmentos_clave": {
+    "chat_handler": {
+      "file": "/Users/admon/Desktop/vibe/apps/api/src/modules/ai/ai.controller.ts",
+      "snippet": "@Post('chat') -> getRequestContext(req.headers) -> aiService.chat(tenantId, userId, dto)"
+    },
+    "openai_wrapper": {
+      "file": "/Users/admon/Desktop/vibe/apps/api/src/modules/llm/llm.service.ts",
+      "snippet": "fetch(`${baseUrl}/chat/completions`, { model, temperature, messages, Authorization: Bearer ... })"
+    },
+    "react_chat_component": {
+      "file": "/Users/admon/Desktop/vibe/apps/web/src/components/ai-bubble.tsx",
+      "snippet": "ask() llama api.aiChat y renderiza answer en pre."
+    }
+  },
+  "notas_integracion": {
+    "reutilizable_sin_cambios": [
+      "Contrato HTTP de /api/v1/ai/chat.",
+      "Logica de contexto por callId/documentId en AiService.",
+      "Wrapper OpenAI en backend Node/Nest.",
+      "Componente AIBubble como base funcional."
+    ],
+    "dependencias_next_a_adaptar": [
+      "Mover uso de NEXT_PUBLIC_* a import.meta.env.VITE_*.",
+      "Montar AIBubble en layout/ruta equivalente en Vite.",
+      "Mantener headers de tenant/user en cliente HTTP."
+    ],
+    "checklist_migracion_vite": [
+      "Crear src/lib/api.ts con aiChat.",
+      "Definir VITE_API_URL, VITE_TENANT_ID, VITE_USER_ID.",
+      "Copiar y ajustar AIBubble.",
+      "Verificar CORS entre Vite y NestJS.",
+      "Probar /api/v1/llm/health y /api/v1/ai/chat."
+    ]
+  }
+}

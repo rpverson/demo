@@ -1,0 +1,12 @@
+import { Module } from '@nestjs/common';
+import { CallsController } from './calls.controller';
+import { CallsService } from './calls.service';
+import { PrismaService } from '../../common/prisma.service';
+import { LlmModule } from '../llm/llm.module';
+
+@Module({
+  imports: [LlmModule],
+  controllers: [CallsController],
+  providers: [CallsService, PrismaService],
+})
+export class CallsModule {}

@@ -1,0 +1,199 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SourceType {
+  URL
+  PDF
+  DOCX
+  MD
+}
+
+enum CallStatus {
+  IMPORTED
+  ANALYZED_PHASE_1
+  GAP_PENDING
+  READY_FOR_PHASE_2
+  GENERATED_PHASE_2
+}
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  users     User[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  tenantId  String
+  email     String   @unique
+  name      String
+  role      String
+  createdAt DateTime @default(now())
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model FormTemplate {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  version     Int      @default(1)
+  schemaJson  Json
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  activityLinks ActivityFormTemplate[]
+  callResponses CallActivityFormResponse[]
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  region      String
+  documented  Boolean  @default(false)
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  formLinks   ActivityFormTemplate[]
+  formResponses CallActivityFormResponse[]
+}
+
+model ActivityFormTemplate {
+  id             String       @id @default(cuid())
+  tenantId       String
+  activityId     String
+  formTemplateId String
+  required       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+
+  activity       Activity     @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  formTemplate   FormTemplate @relation(fields: [formTemplateId], references: [id], onDelete: Cascade)
+
+  @@unique([activityId, formTemplateId])
+  @@index([tenantId, activityId])
+}
+
+model ImpactTask {
+  id          String   @id @default(cuid())
+  tenantId    String
+  title       String
+  description String
+  priority    Int      @default(3)
+  evidence    String?
+  source      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CallForProposal {
+  id                String      @id @default(cuid())
+  tenantId          String
+  title             String
+  sourceType        SourceType
+  sourceUrl         String?
+  sourceStorageKey  String?
+  extractedText     String?
+  status            CallStatus  @default(IMPORTED)
+  phase1Requirements Json?
+  phase1GapReport   Json?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  documentDraft     DocumentDraft?
+  formResponses     CallActivityFormResponse[]
+}
+
+model DocumentDraft {
+  id              String   @id @default(cuid())
+  tenantId        String
+  callId          String   @unique
+  title           String
+  markdownSource  String
+  astSnapshot     Json?
+  version         Int      @default(1)
+  lockOwner       String?
+  lockExpiresAt   DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  call            CallForProposal @relation(fields: [callId], references: [id])
+  comments        DocumentComment[]
+  changes         DocumentChangeSet[]
+  exports         ExportArtifact[]
+}
+
+model DocumentComment {
+  id          String   @id @default(cuid())
+  tenantId    String
+  documentId  String
+  authorId    String
+  body        String
+  resolved    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  document    DocumentDraft @relation(fields: [documentId], references: [id])
+}
+
+model DocumentChangeSet {
+  id             String   @id @default(cuid())
+  tenantId       String
+  documentId     String
+  authorId       String
+  changeType     String
+  payload        Json
+  accepted       Boolean?
+  createdAt      DateTime @default(now())
+
+  document       DocumentDraft @relation(fields: [documentId], references: [id])
+}
+
+model ExportArtifact {
+  id             String   @id @default(cuid())
+  tenantId       String
+  documentId     String
+  version        Int
+  format         String
+  storageKey     String
+  checksum       String
+  generatedAt    DateTime @default(now())
+
+  document       DocumentDraft @relation(fields: [documentId], references: [id])
+}
+
+model AiTrace {
+  id          String   @id @default(cuid())
+  tenantId    String
+  userId      String
+  callId      String?
+  documentId  String?
+  prompt      String
+  response    String
+  createdAt   DateTime @default(now())
+}
+
+model CallActivityFormResponse {
+  id             String         @id @default(cuid())
+  tenantId       String
+  callId         String
+  activityId     String
+  formTemplateId String
+  userId         String
+  responseJson   Json
+  completedAt    DateTime       @default(now())
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  call           CallForProposal @relation(fields: [callId], references: [id], onDelete: Cascade)
+  activity       Activity        @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  formTemplate   FormTemplate    @relation(fields: [formTemplateId], references: [id], onDelete: Cascade)
+
+  @@unique([callId, activityId, formTemplateId, userId])
+  @@index([tenantId, callId])
+}

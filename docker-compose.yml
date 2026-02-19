@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ambiental}
+      POSTGRES_USER: ${POSTGRES_USER:-ambiental}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ambiental}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ambiental} -d ${POSTGRES_DB:-ambiental}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ambiental}:${POSTGRES_PASSWORD:-ambiental}@postgres:5432/${POSTGRES_DB:-ambiental}
+      AUTH_SECRET: ${AUTH_SECRET:-dev-auth-secret}
+      COLLAB_SECRET: ${COLLAB_SECRET:-dev-collab-secret}
+      AUTH_ADMIN_USERNAME: ${AUTH_ADMIN_USERNAME:-admin}
+      AUTH_ADMIN_PASSWORD: ${AUTH_ADMIN_PASSWORD:-admin123}
+      AUTH_USER_USERNAME: ${AUTH_USER_USERNAME:-usuario}
+      AUTH_USER_PASSWORD: ${AUTH_USER_PASSWORD:-user123}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      LLM_MODEL: ${LLM_MODEL:-gpt-4.1-mini}
+      AUTH_TOKEN_TTL_SECONDS: ${AUTH_TOKEN_TTL_SECONDS:-43200}
+      COLLAB_TOKEN_TTL_SECONDS: ${COLLAB_TOKEN_TTL_SECONDS:-259200}
+    command: >
+      sh -c "npm run prisma:migrate:deploy -w @ambiental/api
+      && npm run start -w @ambiental/api"
+    ports:
+      - "${API_PORT:-4000}:4000"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000/api/v1}
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000/api/v1}
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+
+volumes:
+  pg_data:

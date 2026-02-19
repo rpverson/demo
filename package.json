@@ -1,0 +1,19 @@
+{
+  "name": "ambiental-saas",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @ambiental/web & npm run start:dev -w @ambiental/api",
+    "dev:web": "npm run dev -w @ambiental/web",
+    "dev:api": "npm run start:dev -w @ambiental/api",
+    "seed": "npm run seed -w @ambiental/api",
+    "build": "npm run build -w @ambiental/shared && npm run build -w @ambiental/api && npm run build -w @ambiental/web",
+    "prisma:generate": "npm run prisma:generate -w @ambiental/api",
+    "prisma:migrate": "npm run prisma:migrate -w @ambiental/api",
+    "prisma:migrate:deploy": "npm run prisma:migrate:deploy -w @ambiental/api"
+  }
+}
