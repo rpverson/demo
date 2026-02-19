@@ -287,6 +287,10 @@ export default function HomePage() {
     () => (callsQuery.data || []).find((item) => item.id === callId),
     [callsQuery.data, callId],
   );
+  const generatedDraftCalls = useMemo(
+    () => (callsQuery.data || []).filter((item) => Boolean(item.documentDraft?.id)),
+    [callsQuery.data],
+  );
   const pendingForms = (pendingFormsQuery.data?.pendingForms || []) as PendingForm[];
   const completedFormItems = (pendingFormsQuery.data?.completedFormItems || []) as CompletedFormItem[];
   const assistantEligible = !isAdmin && Boolean(callId) && Boolean(gapsQuery.data?.report?.blocked) && pendingForms.length > 0;
@@ -1798,7 +1802,47 @@ export default function HomePage() {
       </div>
       )) : null}
 
-      {currentSection === 'editor' ? (canEditDocument ? (
+      {currentSection === 'editor' ? (
+        <>
+          <div className="mb-4 rounded-lg border border-slate-200 bg-white p-4">
+            <p className="text-sm font-semibold text-slate-800">Anteproyectos generados</p>
+            <p className="mt-1 text-xs text-slate-500">
+              Selecciona un anteproyecto previo para continuar edicion, aunque hayas importado nuevas convocatorias.
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <select
+                className="min-w-[320px] rounded-md border border-slate-300 p-2 text-sm"
+                value={documentId}
+                onChange={(e) => {
+                  const nextDocumentId = e.target.value;
+                  setDocumentId(nextDocumentId);
+                  const matched = generatedDraftCalls.find((item) => item.documentDraft?.id === nextDocumentId);
+                  if (matched) setCallId(matched.id);
+                }}
+              >
+                <option value="">Selecciona un anteproyecto</option>
+                {generatedDraftCalls.map((item) => (
+                  <option key={item.documentDraft.id} value={item.documentDraft.id}>
+                    {item.title} · v{item.documentDraft.version} · {item.status}
+                  </option>
+                ))}
+              </select>
+              <button
+                className="rounded-md border border-slate-300 px-3 py-2 text-xs text-slate-700"
+                onClick={() => callsQuery.refetch()}
+                type="button"
+              >
+                Actualizar lista
+              </button>
+            </div>
+            {generatedDraftCalls.length ? null : (
+              <p className="mt-2 text-xs text-slate-500">
+                Aun no hay anteproyectos generados. Completa analisis y ejecuta FASE_2 para crear uno.
+              </p>
+            )}
+          </div>
+
+        {canEditDocument ? (
         <>
           <div className="mb-4 flex flex-wrap gap-2">
             <button className="rounded-md bg-slate-900 px-4 py-2 text-sm text-white" onClick={() => lockMutationWrapped.mutate()}>
@@ -1848,7 +1892,8 @@ export default function HomePage() {
             ? 'No puedes pasar a la fase de edicion porque no se cumplen los minimos requeridos.'
             : 'Genera la FASE_2 para crear el documento editable tipo Word.'}
         </div>
-      )) : null}
+      )}
+      </>) : null}
         </div>
       </section>
 
