@@ -56,16 +56,19 @@ export class ExportsService {
   }
 
   private buildSimplePdf(markdown: string): Buffer {
+    const encoding: BufferEncoding = 'latin1';
     const lines = markdown
       .replace(/\r/g, '')
+      .replace(/\t/g, '  ')
       .split('\n')
-      .filter((line) => line.trim().length > 0)
-      .slice(0, 48);
+      .filter((line) => line.trim().length > 0);
 
-    const textOps = lines
+    const wrapped = this.wrapLines(lines, 92).slice(0, 52);
+
+    const textOps = wrapped
       .map((line, index) => {
-        const safe = this.escapePdfText(line);
-        const y = 760 - index * 14;
+        const safe = this.escapePdfText(this.toPdfSafeLatin(line));
+        const y = 770 - index * 14;
         return `BT /F1 11 Tf 50 ${y} Td (${safe}) Tj ET`;
       })
       .join('\n');
@@ -75,7 +78,7 @@ export class ExportsService {
       '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n',
       '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n',
       '3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>\nendobj\n',
-      `4 0 obj\n<< /Length ${Buffer.byteLength(stream, 'utf8')} >>\nstream\n${stream}\nendstream\nendobj\n`,
+      `4 0 obj\n<< /Length ${Buffer.byteLength(stream, encoding)} >>\nstream\n${stream}\nendstream\nendobj\n`,
       '5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n',
     ];
 
@@ -83,11 +86,11 @@ export class ExportsService {
     const offsets: number[] = [0];
 
     for (const obj of objects) {
-      offsets.push(Buffer.byteLength(pdf, 'utf8'));
+      offsets.push(Buffer.byteLength(pdf, encoding));
       pdf += obj;
     }
 
-    const xrefOffset = Buffer.byteLength(pdf, 'utf8');
+    const xrefOffset = Buffer.byteLength(pdf, encoding);
     pdf += `xref\n0 ${objects.length + 1}\n`;
     pdf += '0000000000 65535 f \n';
     for (let i = 1; i <= objects.length; i += 1) {
@@ -95,10 +98,40 @@ export class ExportsService {
     }
 
     pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
-    return Buffer.from(pdf, 'utf8');
+    return Buffer.from(pdf, encoding);
   }
 
   private escapePdfText(input: string): string {
     return input.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+  }
+
+  private wrapLines(lines: string[], maxChars: number): string[] {
+    const out: string[] = [];
+    for (const raw of lines) {
+      const line = raw.trimEnd();
+      if (!line) continue;
+      if (line.length <= maxChars) {
+        out.push(line);
+        continue;
+      }
+      let pending = line;
+      while (pending.length > maxChars) {
+        const cut = pending.lastIndexOf(' ', maxChars);
+        const idx = cut > 24 ? cut : maxChars;
+        out.push(pending.slice(0, idx).trimEnd());
+        pending = pending.slice(idx).trimStart();
+      }
+      if (pending.length) out.push(pending);
+    }
+    return out;
+  }
+
+  private toPdfSafeLatin(input: string): string {
+    return input
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"')
+      .replace(/[\u2013\u2014]/g, '-')
+      .replace(/\u2026/g, '...')
+      .replace(/\u00a0/g, ' ');
   }
 }
