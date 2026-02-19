@@ -183,7 +183,6 @@ export default function HomePage() {
         documentId: string;
         draft: string;
         currentSection: SectionKey;
-        operationMessage: string;
         callTitle: string;
         sourceType: SourceType;
         sourceValue: string;
@@ -193,7 +192,6 @@ export default function HomePage() {
       if (parsed.documentId) setDocumentId(parsed.documentId);
       if (parsed.draft) setDraft(parsed.draft);
       if (parsed.currentSection) setCurrentSection(parsed.currentSection);
-      if (parsed.operationMessage) setOperationMessage(parsed.operationMessage);
       if (parsed.callTitle) setCallTitle(parsed.callTitle);
       if (parsed.sourceType) setSourceType(parsed.sourceType);
       if (parsed.sourceValue) setSourceValue(parsed.sourceValue);
@@ -215,7 +213,6 @@ export default function HomePage() {
           documentId,
           draft,
           currentSection,
-          operationMessage,
           callTitle,
           sourceType,
           sourceValue,
@@ -233,7 +230,6 @@ export default function HomePage() {
     documentId,
     draft,
     currentSection,
-    operationMessage,
     callTitle,
     sourceType,
     sourceValue,
@@ -1371,25 +1367,34 @@ export default function HomePage() {
                 </button>
               </>
             ) : (
-              <button
-                className="inline-flex items-center gap-2 rounded-md bg-black px-3 py-2 text-sm text-white disabled:cursor-not-allowed disabled:bg-slate-400"
-                onClick={() => autoProcessMutation.mutate()}
-                disabled={!callId || isAutoProcessing}
-              >
-                {isAutoProcessing ? (
-                  <>
-                    <span className="h-2 w-2 animate-ping rounded-full bg-white" />
-                    Procesando analisis...
-                  </>
-                ) : (
-                  'Activar analisis automatico'
-                )}
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  className="inline-flex items-center gap-2 rounded-md bg-black px-3 py-2 text-sm text-white disabled:cursor-not-allowed disabled:bg-slate-400"
+                  onClick={() => autoProcessMutation.mutate()}
+                  disabled={!callId || isAutoProcessing}
+                >
+                  {isAutoProcessing ? (
+                    <>
+                      <span className="h-2 w-2 animate-ping rounded-full bg-white" />
+                      Procesando analisis...
+                    </>
+                  ) : (
+                    'Activar analisis automatico'
+                  )}
+                </button>
+                <button
+                  className="rounded-md bg-slate-800 px-3 py-2 text-sm text-white disabled:cursor-not-allowed disabled:bg-slate-400"
+                  onClick={() => generateMutation.mutate()}
+                  disabled={!callId || Boolean(gapsQuery.data?.report?.blocked) || isAutoProcessing}
+                >
+                  Pasar a FASE_2
+                </button>
+              </div>
             )}
           </div>
           {!isAdmin ? (
             <p className="mt-2 text-xs text-slate-600">
-              El proceso automatico analiza la convocatoria y solo habilita la edicion si cumple minimos.
+              Primero ejecuta el analisis automatico. Si cumple minimos, habilita el boton para pasar a FASE_2.
             </p>
           ) : null}
           {!isAdmin && isAutoProcessing ? (

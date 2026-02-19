@@ -92,7 +92,7 @@ export class CallsController {
   @Post(':id/generate-phase-2')
   generatePhase2(@Req() req: Request, @Param('id') id: string) {
     const ctx = getRequestContext(req.headers);
-    assertRole(ctx, ['ADMIN']);
+    assertRole(ctx, ['ADMIN', 'USER']);
     return this.callsService.generatePhase2(ctx.tenantId, id);
   }
 

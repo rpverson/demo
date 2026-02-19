@@ -514,13 +514,11 @@ export class CallsService {
       };
     }
 
-    const draft = await this.generateDraftLlm(tenantId, callId);
     return {
       callId,
-      status: draft.status,
+      status: phase1.status,
       blocked: false,
-      documentId: draft.documentId,
-      message: 'Analisis automatico completado. Ya puedes editar el anteproyecto.',
+      message: 'Analisis automatico completado. Ahora puedes ejecutar FASE_2.',
       gapReport: phase1.gapReport,
     };
   }
