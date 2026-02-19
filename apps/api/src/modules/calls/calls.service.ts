@@ -222,11 +222,12 @@ export class CallsService {
     if (!call) throw new NotFoundException('Call not found');
 
     const pendingForms = await this.getPendingForms(tenantId, userId || 'system', callId);
+    const hasPhase1Report = Boolean(call.phase1GapReport);
 
     return {
       callId: call.id,
       status: call.status,
-      report: call.phase1GapReport ?? { gaps: [], blocked: false },
+      report: hasPhase1Report ? call.phase1GapReport : null,
       pendingForms: pendingForms.pendingForms,
     };
   }
