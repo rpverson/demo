@@ -48,7 +48,7 @@ services:
       COLLAB_TOKEN_TTL_SECONDS: ${COLLAB_TOKEN_TTL_SECONDS:-259200}
     command: >
       sh -c "npm run prisma:migrate:deploy -w @ambiental/api
-      && npm run start -w @ambiental/api"
+      && node apps/api/dist/main.js"
     ports:
       - "${API_PORT:-4000}:4000"
 
