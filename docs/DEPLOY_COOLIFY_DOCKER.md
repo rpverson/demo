@@ -52,3 +52,4 @@ npm run seed -w @ambiental/api
 
 - Si cambia `NEXT_PUBLIC_API_URL`, reconstruye `web` (es variable de build para el frontend).
 - Cambia secretos y contraseñas por valores seguros antes de exponer públicamente.
+- El build API ejecuta `prisma generate` antes de compilar para evitar fallos de tipos de Prisma en entornos limpios.
