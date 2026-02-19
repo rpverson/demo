@@ -137,13 +137,13 @@ export function AIBubble({ documentId, callId, scopeKey }: AIBubbleProps) {
     <>
       {open && (
         <div className="fixed bottom-24 right-6 z-50 w-[390px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-          <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 p-3 text-white">
+          <div className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-700 p-3 text-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-xs font-bold">IA</span>
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-[10px] font-bold">MAWI</span>
                 <div>
-                  <h3 className="font-heading text-sm font-semibold">Asistente Conversacional</h3>
-                  <p className="text-[11px] text-slate-200">Contexto de convocatoria y anteproyecto</p>
+                  <h3 className="font-heading text-sm font-semibold">MAWI · Asistente Ambiental</h3>
+                  <p className="text-[11px] text-emerald-100">Contexto de convocatoria y anteproyecto</p>
                 </div>
               </div>
               <span className="rounded-full bg-white/15 px-2 py-1 text-[10px] font-semibold">
@@ -247,9 +247,9 @@ export function AIBubble({ documentId, callId, scopeKey }: AIBubbleProps) {
       )}
       <button
         onClick={() => setOpen((v) => !v)}
-        aria-label={open ? 'Cerrar asistente IA' : 'Abrir asistente IA'}
-        title={open ? 'Cerrar asistente IA' : 'Abrir asistente IA'}
-        className="fixed bottom-6 right-6 z-50 inline-flex h-16 w-16 items-center justify-center rounded-full bg-slate-950 p-0 text-white shadow-lg transition-colors hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+        aria-label={open ? 'Cerrar MAWI' : 'Abrir MAWI'}
+        title={open ? 'Cerrar MAWI' : 'Abrir MAWI'}
+        className="fixed bottom-6 right-6 z-50 inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-900 p-0 text-white shadow-lg transition-colors hover:bg-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
       >
         <svg
           viewBox="0 0 24 24"

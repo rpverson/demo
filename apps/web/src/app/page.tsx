@@ -893,10 +893,10 @@ export default function HomePage() {
 
   if (!isAuthenticated) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-200 p-6">
+      <main className="abt-theme flex min-h-screen items-center justify-center bg-slate-200 p-6">
         <section className="w-full max-w-[440px] rounded-xl border border-slate-300 bg-white p-8 shadow-sm">
-          <h1 className="text-center text-4xl font-semibold tracking-tight text-slate-900">Iniciar Sesión</h1>
-          <p className="mt-2 text-center text-base text-slate-500">Accede a tu panel de gestión de proyectos.</p>
+          <h1 className="text-center text-4xl font-semibold tracking-tight text-slate-900">ABT</h1>
+          <p className="mt-2 text-center text-base text-slate-500">Iniciar sesión en la plataforma ambiental.</p>
           <form
             className="mt-8"
             onSubmit={(e) => {
@@ -928,6 +928,7 @@ export default function HomePage() {
               Demo: <strong>admin/admin123</strong> o <strong>usuario/user123</strong>
             </p>
             <p className="mt-1 text-center text-[11px] text-slate-400">Tenant activo: {sessionTenant}</p>
+            <p className="mt-1 text-center text-[11px] text-emerald-700">Promotor: AWAQ ORNG</p>
           </form>
         </section>
       </main>
@@ -965,9 +966,9 @@ export default function HomePage() {
     sidebarNoteOverride || sidebarSections.find((section) => section.key === currentSection)?.note || 'Navegacion principal';
 
   return (
-    <main className="flex h-screen bg-white">
+    <main className="abt-theme flex h-screen bg-white">
       <aside className="h-screen w-64 border-r border-slate-200 bg-slate-50 p-4">
-        <h2 className="text-base font-semibold text-slate-700">Convocatorias IA</h2>
+        <h2 className="text-base font-semibold text-slate-700">ABT</h2>
         <p className="mt-1 min-h-8 text-xs text-slate-500">{activeSidebarNote}</p>
         <div className="mt-4 space-y-2">
             {sidebarSections.map((section) => (
@@ -1000,8 +1001,11 @@ export default function HomePage() {
       <section className="flex-1 overflow-hidden">
         <header className="h-14 border-b border-slate-200 bg-white px-6">
           <div className="flex h-full items-center justify-between">
-            <p className="text-sm font-semibold text-slate-500">Plataforma de Convocatorias Ambientales</p>
+            <p className="text-sm font-semibold text-slate-500">ABT · Plataforma de Convocatorias Ambientales</p>
             <div className="flex items-center gap-2">
+              <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs text-emerald-700">
+                AWAQ ORNG
+              </span>
               <span className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600">
                 {sessionRole} · {sessionUserId}
               </span>
@@ -1013,7 +1017,8 @@ export default function HomePage() {
         </header>
         <div className="h-[calc(100vh-56px)] overflow-auto bg-slate-50 p-6">
           <header className="mb-4 rounded-lg border border-slate-200 bg-white p-6">
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Plataforma de Convocatorias Ambientales</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">ABT</h1>
+            <p className="mt-1 text-sm text-slate-600">Plataforma de Convocatorias Ambientales</p>
           </header>
 
           <div className="mb-4 rounded-md border border-slate-200 bg-white p-3 text-sm text-slate-700">

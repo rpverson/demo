@@ -26,6 +26,40 @@ body {
   font-family: system-ui, -apple-system, sans-serif;
 }
 
+.abt-theme {
+  --abt-900: #0f5f47;
+  --abt-800: #13745a;
+  --abt-700: #1a8c6d;
+  --abt-50: #eefaf4;
+  --abt-100: #d9f3e6;
+}
+
+.abt-theme .bg-slate-900,
+.abt-theme .bg-black {
+  background-color: var(--abt-900) !important;
+}
+
+.abt-theme .hover\:bg-slate-900:hover,
+.abt-theme .hover\:bg-black:hover {
+  background-color: var(--abt-800) !important;
+}
+
+.abt-theme .border-slate-900 {
+  border-color: var(--abt-900) !important;
+}
+
+.abt-theme .text-slate-900 {
+  color: #0d2f24 !important;
+}
+
+.abt-theme .bg-slate-50 {
+  background-color: var(--abt-50) !important;
+}
+
+.abt-theme .bg-slate-100 {
+  background-color: var(--abt-100) !important;
+}
+
 .editor-shell {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
