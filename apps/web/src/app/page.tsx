@@ -928,7 +928,7 @@ export default function HomePage() {
               Demo: <strong>admin/admin123</strong> o <strong>usuario/user123</strong>
             </p>
             <p className="mt-1 text-center text-[11px] text-slate-400">Tenant activo: {sessionTenant}</p>
-            <p className="mt-1 text-center text-[11px] text-emerald-700">Promotor: AWAQ ORNG</p>
+            <p className="mt-1 text-center text-[11px] text-emerald-700">Promotor: AWAQ ONGD</p>
           </form>
         </section>
       </main>
@@ -1004,7 +1004,7 @@ export default function HomePage() {
             <p className="text-sm font-semibold text-slate-500">ABT · Plataforma de Convocatorias Ambientales</p>
             <div className="flex items-center gap-2">
               <span className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs text-emerald-700">
-                AWAQ ORNG
+                AWAQ ONGD
               </span>
               <span className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600">
                 {sessionRole} · {sessionUserId}
